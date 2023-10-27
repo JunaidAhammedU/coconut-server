@@ -2,7 +2,6 @@ const UBD = require('../Model/UserModel');
 //----------------------------------------
 
 
-
 const dologin = async (req, res) => {
     try {
         console.log("Request received");
