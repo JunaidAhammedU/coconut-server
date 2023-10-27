@@ -33,6 +33,7 @@ const authentication = (req, res, next) => {
 // User Registration
 const register = async (req, res) => {
   try {
+    console.log(req.body);
     const userData = req.body;
     const userMail = userData.email;
     const result = await UDB.find({ email: userMail });
@@ -41,7 +42,6 @@ const register = async (req, res) => {
     } else {
       userData.password = await bcrypt.hash(userData.password, 10);
       await UDB.insertMany([userData]);
-      console.log("sss");
       await otpRegister.registerOtp(userMail);
       res.status(201).json({ exist: false, created: true });
     }
@@ -58,6 +58,7 @@ const OtpRegister = async (req, res, next) => {
     const sendedOTP = await UserVerification.findOne({ otp: OTP });
     if (sendedOTP) {
       res.json({ verified: true });
+      await UserVerification.deleteOne({ otp: OTP });
     } else {
       res.json({ verified: false });
     }
