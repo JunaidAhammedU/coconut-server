@@ -34,16 +34,14 @@ const authentication = (req, res, next) => {
 const register = async (req, res) => {
   try {
     const userData = req.body;
-    console.log(userData);
-
     const userMail = userData.email;
     const result = await UDB.find({ email: userMail });
     if (result.length) {
       res.json({ exist: true, created: false });
     } else {
-      console.log("account created");
       userData.password = await bcrypt.hash(userData.password, 10);
       await UDB.insertMany([userData]);
+      console.log("sss");
       await otpRegister.registerOtp(userMail);
       res.status(201).json({ exist: false, created: true });
     }
