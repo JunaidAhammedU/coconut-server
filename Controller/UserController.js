@@ -33,7 +33,6 @@ const authentication = (req, res, next) => {
 // User Registration
 const register = async (req, res) => {
   try {
-    console.log(req.body);
     const userData = req.body;
     const userMail = userData.email;
     const result = await UDB.find({ email: userMail });
