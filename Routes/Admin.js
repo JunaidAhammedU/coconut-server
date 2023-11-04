@@ -1,9 +1,11 @@
-const express = require('express');
+const express = require("express");
 const AdminRoutes = express.Router();
-const adminController = require('../Controller/AdminController');
+const adminController = require("../Controller/AdminController");
 //------------------------------------------------------------------
 
+AdminRoutes.post("/login", adminController.dologin);
+AdminRoutes.post("/blockuser/:id", adminController.doBlockUser);
 
-AdminRoutes.post('/login', adminController.dologin);
+AdminRoutes.get("/getuser", adminController.getUserData);
 
 module.exports = AdminRoutes;

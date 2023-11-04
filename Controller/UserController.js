@@ -41,6 +41,7 @@ const register = async (req, res) => {
     } else {
       userData.password = await bcrypt.hash(userData.password, 10);
       await UDB.insertMany([userData]);
+      console.log("check");
       await otpRegister.registerOtp(userMail);
       res.status(201).json({ exist: false, created: true });
     }
