@@ -4,57 +4,95 @@ const UBD = require("../Model/UserModel");
 const dologin = async (req, res) => {
   try {
     const adminData = req.body;
+    const response = {};
+
     const regex = {
       email: /^([\w])([\w\W])+@([a-zA-Z0-9]){3,6}.([a-zA-Z0-9]){2,3}$/gm,
       password:
         /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*().\\?]).{8,16}$/gm,
     };
+
     if (!regex.email.test(adminData.email)) {
-      res.json({ status: -1 });
+      response.status = false;
+      response.message = "Invalid Email address";
     } else if (!regex.password.test(adminData.password)) {
-      res.json({ status: -1 });
+      response.status = false;
+      response.message = "Create a strong Password";
     } else {
-      let admin = await UBD.findOne({ email: adminData.email });
+      let admin = await UBD.findOne({ email: adminData.email })
+        .select("_id UserName email is_admin ")
+        .lean();
+
       if (admin && admin.is_admin === true) {
-        res.status(200).json({ isAdmin: true, admin });
+        response.status = true;
+        response.message = "Login Successful";
       } else {
-        res.status(200).json({ isAdmin: false });
+        response.status = true;
+        response.message = "Somting went wrong try again!";
       }
     }
+    return res.json(response);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.json(error);
   }
 };
+
 
 //get user data from database
 const getUserData = async (req, res) => {
   try {
-    const userData = await UBD.find();
+    const response = {};
+    const userData = await UBD.aggregate([
+      {
+        $project: {
+          _id: 1,
+          UserName: 1,
+          email: 1,
+          createdAt: 1,
+          is_blocked: 1,
+          is_verified: 1,
+        },
+      },
+    ]);
     if (!userData) {
-      res.status(401).json({ status: -1 });
+      (response.status = false), (response.message = "Can't get the data");
     } else {
-      res.status(200).json({ status: 1, response: userData });
+      (response.status = true), (response.data = userData);
     }
+    return res.json(response);
   } catch (error) {
     console.log(error);
-    res.send(200).json({ status: -1 });
+    res.json({ error: err.message });
   }
 };
 
 //block user
 const doBlockUser = async (req, res) => {
   try {
+    const response = {};
     const data = req.params.id;
     const userData = await UBD.findById({ _id: data });
-    if (userData.is_blocked === false) {
-      await UBD.findByIdAndUpdate({ _id: data },{ $set: { is_blocked: true } });
-      res.status(200).json({ is_blocked:true });
+    if (!userData) {
+      (response.status = false), (response.message = "User is not available");
     } else {
-      await UBD.findByIdAndUpdate({ _id: data },{ $set: { is_blocked: false } });
-      res.status(200).json({ is_blocked:false });
+      if (userData.is_blocked === false) {
+        await UBD.findByIdAndUpdate(
+          { _id: data },
+          { $set: { is_blocked: true } }
+        );
+        response.blocked = true;
+      } else {
+        await UBD.findByIdAndUpdate(
+          { _id: data },
+          { $set: { is_blocked: false } }
+        );
+        response.unBlocked = true;
+      }
     }
-  } catch (error) {}
+    return res.json(response);
+  } catch (error) {
+    res.json({ error: err.message });
+  }
 };
 
 module.exports = { dologin, getUserData, doBlockUser };
