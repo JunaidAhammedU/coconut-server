@@ -49,11 +49,11 @@ io.on("connection", (socket) => {
   });
 
   // sending new messsage through socket io
-  socket.on("send_message", (data) => {
+  socket.on("send_message", async (data) => {
     const { chatId } = data;
-    if (data) {
+    if (data && chatId) {
       socket.to(chatId).emit("receive_message", data);
-      newMessage(data);
+      await newMessage(data);
     } else {
       console.log("Something went wrong!");
     }

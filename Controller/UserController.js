@@ -305,6 +305,7 @@ const getAllFollowers = async (req, res) => {
         "followers",
         "_id UserName email"
       );
+
       if (userData.followers.length > 0) {
         response.status = true;
         response.message = "data fetched";
@@ -323,8 +324,6 @@ const getAllFollowers = async (req, res) => {
     res.json(error);
   }
 };
-
-
 
 module.exports = {
   authentication,

@@ -6,58 +6,56 @@ const UDB = require("../Model/UserModel");
 // adding a recipe data to DB
 const addRecipe = async (req, res) => {
   try {
-    console.log(req.body);
-    
-    // const {
-    //   title,
-    //   description,
-    //   veg,
-    //   time,
-    //   cuisine,
-    //   ingredient,
-    //   calories,
-    //   protein,
-    //   carbohydrates,
-    //   fat,
-    //   calcium,
-    //   userId,
-    //   instruction,
-    // } = req.body;
+    const {
+      title,
+      description,
+      veg,
+      time,
+      cuisine,
+      ingredient,
+      calories,
+      protein,
+      carbohydrates,
+      fat,
+      calcium,
+      userId,
+      instruction,
+    } = req.body;
 
-    // const imgUrl = req.file.filename;
+    const imgUrl = req.file.filename;
 
-    // const response = {};
+    const response = {};
 
-    // const newRecipe = new RSDB({
-    //   title: title,
-    //   description: description,
-    //   recipeType: veg === "veg" ? "veg" : "nonveg",
-    //   cookingTime: parseInt(time),
-    //   category: cuisine,
-    //   recipeImage: [imgUrl],
-    //   Ingredients: ingredient,
-    //   Nutritions: {
-    //     calories: calories,
-    //     protein: protein,
-    //     carbohydrates: carbohydrates,
-    //     fat: fat,
-    //     calcium: calcium,
-    //   },
-    //   Instructions: instruction,
-    //   userId: userId,
-    // });
+    const newRecipe = new RSDB({
+      title: title,
+      description: description,
+      recipeType: veg === "veg" ? "veg" : "nonveg",
+      cookingTime: parseInt(time),
+      category: cuisine,
+      recipeImage: [imgUrl],
+      Ingredients: ingredient,
+      Nutritions: {
+        calories: calories,
+        protein: protein,
+        carbohydrates: carbohydrates,
+        fat: fat,
+        calcium: calcium,
+      },
+      Instructions: instruction,
+      userId: userId,
+    });
 
-    // const savedRecipe = await newRecipe.save();
-    // if (savedRecipe) {
-    //   response.status = true;
-    //   response.message = "data saved";
-    //   response.data = savedRecipe;
-    // } else {
-    //   response.status = false;
-    //   response.message = "Somthing whent wrong, try again";
-    //   console.log(error);
-    // }
-    // return res.json(response);
+    const savedRecipe = await newRecipe.save();
+    if (savedRecipe) {
+      response.status = true;
+      response.message = "data saved";
+      response.data = savedRecipe;
+    } else {
+      response.status = false;
+      response.message = "Somthing whent wrong, try again";
+      console.log(error);
+    }
+    return res.json(response);
   } catch (error) {
     console.error(error);
     res.json(error);

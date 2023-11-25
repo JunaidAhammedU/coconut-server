@@ -47,18 +47,17 @@ const chat = async (req, res) => {
 const newMessage = async (message) => {
   try {
     const { text, senderId, chatId, time } = message;
-    const response = {};
 
-    const messagesModel = new MSSG_DB({
+    const newMessage = new MSSG_DB({
       text,
       senderId,
       chatId,
       time,
     });
 
-    const newMessage = await messagesModel.save();
+    const savedMessage = await newMessage.save();
 
-    if (newMessage) {
+    if (savedMessage) {
       response.status = true;
     } else {
       response.status = false;

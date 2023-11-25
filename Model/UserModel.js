@@ -17,13 +17,19 @@ var userSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    }
+    },
   ],
   following: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    }
+    },
+  ],
+  saved_recipe: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Recipe",
+    },
   ],
   is_admin: {
     type: Boolean,
