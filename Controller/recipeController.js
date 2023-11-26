@@ -124,9 +124,7 @@ const getRecipeData = async (req, res) => {
     } else {
       response.status = false;
       response.message = "Somthing whent wrong";
-      response.data = data;
     }
-
     return res.json(response);
   } catch (error) {
     res.json(error);

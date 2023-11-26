@@ -25,12 +25,6 @@ var userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  saved_recipe: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Recipe",
-    },
-  ],
   is_admin: {
     type: Boolean,
     required: true,
