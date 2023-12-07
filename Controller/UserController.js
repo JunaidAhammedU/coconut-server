@@ -13,9 +13,11 @@ const authentication = (req, res, next) => {
   try {
     const { token } = req.body;
     const response = {};
+
     if (token) {
       const auth = jwt.verify(token, process.env.jwt_key);
       const timeStamp = Math.floor(Date.now() / 1000);
+
       if (auth.exp < timeStamp) {
         response.status = false;
         response.message = "Authentication faild";
@@ -27,9 +29,10 @@ const authentication = (req, res, next) => {
       response.status = false;
       response.message = "Somthing went wrong!";
     }
-    return res.json(response);
+
+    return res.status(200).json(response);
   } catch (error) {
-    res.json(error);
+    return res.json(error);
   }
 };
 
@@ -104,6 +107,7 @@ const doLogin = async (req, res) => {
           const token = jwt.sign({ sub: getUser._id }, process.env.jwt_key, {
             expiresIn: maxAge * 1000,
           });
+
           await UDB.updateOne(
             { _id: getUser._id },
             { $set: { is_verified: true } }
@@ -115,6 +119,7 @@ const doLogin = async (req, res) => {
             email,
             followers,
             following,
+            profile_image,
             is_admin,
             is_verified,
             is_blocked,
@@ -129,6 +134,7 @@ const doLogin = async (req, res) => {
             email,
             followers,
             following,
+            profile_image,
             is_admin,
             is_verified,
             is_blocked,
@@ -153,8 +159,11 @@ const getUserData = async (req, res) => {
 
     if (data) {
       const userData = await UDB.findById({ _id: data })
-        .select("_id UserName email followers following is_verified createdAt")
-        .lean();
+        .select(
+          "_id UserName email followers following profile_image is_verified createdAt "
+        )
+        .lean()
+        .populate("followers following");
 
       const recipeData = await RSDB.aggregate([
         { $match: { userId: { $eq: userData._id } } },
@@ -168,6 +177,7 @@ const getUserData = async (req, res) => {
           email,
           followers,
           following,
+          profile_image,
           is_verified,
           createdAt,
         } = userData;
@@ -303,7 +313,7 @@ const getAllFollowers = async (req, res) => {
     if (userId) {
       const userData = await UDB.findById(userId).populate(
         "followers",
-        "_id UserName email"
+        "-password"
       );
 
       if (userData.followers.length > 0) {
@@ -325,6 +335,39 @@ const getAllFollowers = async (req, res) => {
   }
 };
 
+// user profile edit
+const userProfileEdit = async (req, res) => {
+  try {
+    const { UserName, email } = req.body;
+    const { userId } = req.query;
+    const profileUrl = req.file.filename;
+    const response = {};
+
+    if (UserName && email && userId) {
+      const updatedUserData = await UDB.findByIdAndUpdate(userId, {
+        $set: { UserName, email, profile_image: profileUrl },
+      });
+      if (updatedUserData) {
+        console.log(updatedUserData.profile_image);
+
+        response.status = true;
+        response.message = "Profile updated";
+        response.data = updatedUserData;
+      } else {
+        response.status = false;
+        response.message = "Profile not updated!, Try again";
+      }
+    } else {
+      response.status = false;
+      response.message = "Somthing went wrong!, Try again";
+    }
+
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.json(error);
+  }
+};
+
 module.exports = {
   authentication,
   register,
@@ -335,4 +378,5 @@ module.exports = {
   unFollowUser,
   getFollowStatus,
   getAllFollowers,
+  userProfileEdit,
 };

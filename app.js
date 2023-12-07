@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const adminRouter = require("./Routes/Admin");
 const userRouter = require("./Routes/User");
 const dbConnect = require("./Config/dbConnection");
-const { newMessage } = require("./Controller/chatController");
 const { Server } = require("socket.io");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
@@ -42,6 +41,12 @@ const io = new Server(server, {
 
 // socken connection logic
 io.on("connection", (socket) => {
+  socket.on("setup", (userId) => {
+    console.log("connected");
+    socket.join(userId);
+    socket.emit("connected");
+  });
+
   // creating a room of socket io
   socket.on("join_room", (room) => {
     socket.join(room);
@@ -49,11 +54,10 @@ io.on("connection", (socket) => {
   });
 
   // sending new messsage through socket io
-  socket.on("send_message", async (data) => {
+  socket.on("new message", async (data) => {
     const { chatId } = data;
     if (data && chatId) {
-      socket.to(chatId).emit("receive_message", data);
-      await newMessage(data);
+      socket.to(chatId).emit("message recieved", data);
     } else {
       console.log("Something went wrong!");
     }
@@ -61,7 +65,7 @@ io.on("connection", (socket) => {
 
   // handling disconnect function
   socket.on("disconnect", () => {
-    // Clean up logic if necessary
+    console.log("Disconnected:", socket.id);
   });
 });
 

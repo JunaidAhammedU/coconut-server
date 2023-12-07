@@ -1,7 +1,9 @@
 const { default: mongoose } = require("mongoose");
 const RSDB = require("../Model/RecipeModel");
 const UDB = require("../Model/UserModel");
-//--------------------------------------------
+const SavedRecipeDB = require("../Model/SavedRecipeModel");
+const CATE_DB = require("../Model/CategoryModel");
+//-----------------------------------------------------------
 
 // adding a recipe data to DB
 const addRecipe = async (req, res) => {
@@ -23,7 +25,6 @@ const addRecipe = async (req, res) => {
     } = req.body;
 
     const imgUrl = req.file.filename;
-
     const response = {};
 
     const newRecipe = new RSDB({
@@ -47,9 +48,14 @@ const addRecipe = async (req, res) => {
 
     const savedRecipe = await newRecipe.save();
     if (savedRecipe) {
+      await CATE_DB.findByIdAndUpdate(
+        cuisine,
+        { $addToSet: { recipes: savedRecipe._id } },
+        { new: true }
+      );
+
       response.status = true;
       response.message = "data saved";
-      response.data = savedRecipe;
     } else {
       response.status = false;
       response.message = "Somthing whent wrong, try again";
@@ -99,13 +105,12 @@ const getRecipeData = async (req, res) => {
     const { id, userId } = req.params;
     const response = {};
 
-    const recipeData = await RSDB.findById({ _id: id }).populate(
-      "Comments.user",
-      "_id UserName email"
-    );
+    const recipeData = await RSDB.findById({ _id: id })
+      .populate("Comments.user", "-password")
+      .populate("category");
 
     const userData = await UDB.findById({ _id: userId })
-      .select("_id UserName email followers following is_verified createdAt")
+      .select("-password")
       .lean();
 
     if (recipeData && userData) {
@@ -204,10 +209,135 @@ const getAllSeachRecipeData = async (req, res) => {
   }
 };
 
+// add new recipe saved collection
+const addSavedRecipe = async (req, res) => {
+  try {
+    const { recipeId, userId } = req.query;
+    const response = {};
+
+    if (recipeId && userId) {
+      const savedCollection = await SavedRecipeDB.findOne({ userId });
+
+      if (savedCollection) {
+        const updatedCollection = await SavedRecipeDB.findOneAndUpdate(
+          { userId },
+          { $addToSet: { recipe: recipeId } },
+          { new: true }
+        );
+
+        if (updatedCollection) {
+          response.status = true;
+          response.message = "Recipe added to the collection";
+        } else {
+          response.status = false;
+          response.message = "Failed to add the recipe";
+        }
+      } else {
+        const newCollection = await SavedRecipeDB.create({
+          userId,
+          recipe: [recipeId],
+        });
+
+        if (newCollection) {
+          response.status = true;
+          response.message = "New collection created with the recipe";
+        } else {
+          response.status = false;
+          response.message = "Failed to create a new collection";
+        }
+      }
+    } else {
+      response.status = false;
+      response.message = "Somthing went wrong, Try again later";
+    }
+
+    if (response.status) {
+      return res.status(200).json(response);
+    } else {
+      return res.json({ message: response.message });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// get al saved collections
+const getAllCollections = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    const response = {};
+
+    if (userId) {
+      const collectionData = await SavedRecipeDB.findOne({ userId }).populate({
+        path: "recipe",
+        model: "Recipe",
+        options: { sort: { createdAt: -1 } },
+      });
+
+      if (collectionData) {
+        response.status = true;
+        response.message = "Data fetched successfully";
+        response.data = collectionData;
+      } else {
+        response.status = false;
+        response.message = "Data fetch failed";
+      }
+    } else {
+      response.status = false;
+      response.message = "Something went wrong";
+    }
+
+    if (response.status) {
+      return res.status(200).json(response);
+    } else {
+      return res.json(response.message);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// get all category based recipe
+const getCategoryRecipe = async (req, res) => {
+  try {
+    const { category } = req.query;
+    const response = {};
+
+    if (category) {
+      const allCategoryData = await CATE_DB.findById({
+        _id: category,
+      }).populate("recipes");
+
+      if (allCategoryData) {
+        response.status = true;
+        response.message = "Data fetched successfully";
+        response.data = allCategoryData;
+      } else {
+        response.status = false;
+        response.message = "This category available";
+      }
+    } else {
+      response.status = false;
+      response.message = "Somthing went wrong, Try again letter";
+    }
+
+    if (response.status) {
+      return res.status(200).json(response);
+    } else {
+      return res.json(response.message);
+    }
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+
 module.exports = {
   addRecipe,
   getAllRecipes,
   getRecipeData,
   addNewComment,
   getAllSeachRecipeData,
+  addSavedRecipe,
+  getAllCollections,
+  getCategoryRecipe,
 };

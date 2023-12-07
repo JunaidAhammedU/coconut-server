@@ -8,6 +8,7 @@ var userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -25,6 +26,9 @@ var userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  profile_image: {
+    type: String,
+  },
   is_admin: {
     type: Boolean,
     required: true,
