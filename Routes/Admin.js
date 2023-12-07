@@ -1,7 +1,7 @@
 const express = require("express");
 const AdminRoutes = express.Router();
 const adminController = require("../Controller/AdminController");
-const upload = require("../Middleware/Multer");
+const upload = require("../Config/Multer");
 //------------------------------------------------------------------
 
 AdminRoutes.get("/getuser", adminController.getUserData);

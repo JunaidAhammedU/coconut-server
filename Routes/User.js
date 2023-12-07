@@ -2,7 +2,7 @@ const express = require('express');
 const UserRoutes = express.Router();
 const userController  = require('../Controller/UserController');
 const {verifyAuth} = require('../Middleware/Auth')
-const upload = require('../Middleware/Multer')
+const upload = require('../Config/Multer')
 const recipeController = require('../Controller/recipeController')
 const chatController = require("../Controller/chatController");
 //----------------------------------------------------------------
