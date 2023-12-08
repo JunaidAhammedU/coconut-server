@@ -29,13 +29,12 @@ const upload = multer({
 });
 
 // Middleware
-app.use(
-  cors({
-    origin: [process.env.origin],
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: 'https://coconut-client.vercel.app',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
