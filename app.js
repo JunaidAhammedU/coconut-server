@@ -29,13 +29,11 @@ const upload = multer({
 });
 
 // Middleware
-app.use(
-  cors({
-    origin: "https://coconut-client.vercel.app",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: 'https://coconut-client.vercel.app',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -44,12 +42,11 @@ app.use(upload.any());
 
 //Socket io
 const io = new Server(server, {
+  pingTimeout: 60000,
   cors: {
-    origin: ["https://coconut-client.vercel.app"],
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    credentials: true,
+    origin: 'https://coconut-client.vercel.app',
+    methods: ["GET", "POST"],
   },
-  allowEIO3: true,
 });
 
 // socken connection logic
