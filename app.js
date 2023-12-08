@@ -57,6 +57,7 @@ io.on("connection", (socket) => {
   socket.on("new message", async (data) => {
     const { chatId } = data;
     if (data && chatId) {
+      console.log(data);
       socket.to(chatId).emit("message recieved", data);
     } else {
       console.log("Something went wrong!");

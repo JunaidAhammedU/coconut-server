@@ -96,9 +96,6 @@ const getChatHistory = async (req, res) => {
   }
 };
 //==============================================================================================================================================
-//==============================================================================================================================================
-//==============================================================================================================================================
-//==============================================================================================================================================
 
 // const getAllfollowers = async (req, res) => {
 //   try {
@@ -137,7 +134,7 @@ const accessChat = async (req, res) => {
     })
       .populate("users", "-password")
       .populate("latestMessage")
-      .populate("messages");
+      .populate("messages","-password");
 
     if (!isChat) {
       const chatData = {
@@ -161,110 +158,37 @@ const accessChat = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
-
-// const fetchAllChats = async (req, res) => {
-//   try {
-//     CHAT_DB.find({ users: { $elemMatch: { $eq: req.query.user } } })
-//       .populate("users", "-password")
-//       .populate("latestMessage")
-//       .sort({ updatedAt: -1 })
-//       .then(async (result) => {
-//         result = await UDB.populate(result, {
-//           path: "latestMessage.sender",
-//           select: "name email",
-//         });
-//         res.send(result);
-//       });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const allMessages = async (req, res) => {
-//   try {
-//     const messages = await MSSG_DB.find({ chat: req.params.chatId })
-//       .populate("sender", "UserName email")
-//       .populate("chatId");
-//     return res.json(messages);
-//   } catch (error) {
-//     res.status(400);
-//     throw new Error(error.message);
-//   }
-// };
-
-// const sendMessage = async (req, res) => {
-//   try {
-//     const { senderId, text, chatId } = req.body;
-//     const response = {};
-
-//     if (!text || !chatId) {
-//       response.status = false;
-//       response.message = "Invalid data passed into request";
-//     } else {
-//       const newMessage = {
-//         senderId: senderId,
-//         text: text,
-//         chatId: chatId,
-//       };
-
-//       const message = await MSSG_DB.create(newMessage);
-
-//       await CHAT_DB.findByIdAndUpdate(chatId, {
-//         latestMessage: message,
-//         $push: { messages: message._id },
-//       });
-
-//       response.status = true;
-//       response.message = "new message sended";
-//     }
-
-//     return res.status(200).json(response);
-//   } catch (error) {
-//     res.status(400);
-//     throw new Error(error.message);
-//   }
-// };
-
-// sendMessage function
+//---------
 const sendMessage = async (req, res) => {
   try {
     const { senderId, text, chatId } = req.body;
+    const response = {};
 
     if (!text || !chatId) {
-      return res
-        .status(400)
-        .json({ status: false, message: "Invalid data passed into request" });
+      response.status = false;
+      response.message = "Invalid data passed into request";
+    } else {
+      const newMessage = {
+        senderId: senderId,
+        text: text,
+        chatId: chatId,
+      };
+
+      const message = await MSSG_DB.create(newMessage);
+
+      await CHAT_DB.findByIdAndUpdate(chatId, {
+        latestMessage: message,
+        $push: { messages: message._id },
+      });
+
+      response.status = true;
+      response.message = "new message sended";
+      response.data = message;
     }
-
-    // Check if the message already exists in the chat
-    const existingMessage = await MSSG_DB.findOne({
-      senderId,
-      text,
-      chatId,
-    });
-
-    if (existingMessage) {
-      return res
-        .status(200)
-        .json({ status: true, message: "Message already exists" });
-    }
-
-    const newMessage = {
-      senderId,
-      text,
-      chatId,
-    };
-
-    const message = await MSSG_DB.create(newMessage);
-
-    await CHAT_DB.findByIdAndUpdate(chatId, {
-      latestMessage: message,
-      $push: { messages: message._id },
-    });
-
-    return res.status(200).json({ status: true, message: "New message sent" });
+    return res.status(200).json(response);
   } catch (error) {
-    return res.status(400).json({ status: false, message: error.message });
+    res.status(400);
+    throw new Error(error.message);
   }
 };
 
@@ -273,8 +197,5 @@ module.exports = {
   getChatHistory,
   newMessage,
   accessChat,
-  // fetchAllChats,
-  // getAllfollowers,
-  // allMessages,
   sendMessage,
 };
