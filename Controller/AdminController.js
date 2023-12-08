@@ -30,16 +30,12 @@ const dologin = async (req, res) => {
         response.status = true;
         response.message = "Login Successful";
       } else {
-        response.status = true;
+        response.status = false;
         response.message = "Somting went wrong try again!";
       }
     }
 
-    if (response.status) {
-      return res.status(200).json(response);
-    } else {
-      return res.json(response.message);
-    }
+    return res.status(200).json(response);
   } catch (error) {
     res.json(error);
   }
