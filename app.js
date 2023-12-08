@@ -8,6 +8,7 @@ const dbConnect = require("./Config/dbConnection");
 const { Server } = require("socket.io");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const multer = require("multer");
 //-------------------------------------------------------
 
 // Database Connections
@@ -18,11 +19,20 @@ const server = app.listen(process.env.PORT, () =>
   console.log("server started")
 );
 
+// Multer configuration with increased field size limits
+const upload = multer({
+  limits: {
+    fieldNameSize: 100,
+    fieldSize: 1024 * 1024 * 10,
+  },
+});
+
 // Middleware
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(upload.any());
 
 //Socket io
 const io = new Server(server, {

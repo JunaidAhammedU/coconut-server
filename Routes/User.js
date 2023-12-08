@@ -2,7 +2,6 @@ const express = require('express');
 const UserRoutes = express.Router();
 const userController  = require('../Controller/UserController');
 const {verifyAuth} = require('../Middleware/Auth')
-const upload = require('../Config/Multer')
 const recipeController = require('../Controller/recipeController')
 const chatController = require("../Controller/chatController");
 //----------------------------------------------------------------
@@ -16,14 +15,14 @@ UserRoutes.get('/getallfollowers/:userId',verifyAuth,userController.getAllFollow
 UserRoutes.get('/getrecipesearch', recipeController.getAllSeachRecipeData);
 UserRoutes.get('/getAllCollections',verifyAuth,recipeController.getAllCollections)
 UserRoutes.get('/getAllCategoryRecipe',verifyAuth,recipeController.getCategoryRecipe)
-UserRoutes.post('/editProfile', verifyAuth, upload.single("profileImage"),userController.userProfileEdit);
+UserRoutes.post('/editProfile', verifyAuth,userController.userProfileEdit);
 
 // all post and put methods
 UserRoutes.post('/',userController.authentication);
 UserRoutes.post('/register',userController.register);
 UserRoutes.post('/login',userController.doLogin);
 UserRoutes.post('/otp-verify', userController.OtpRegister);
-UserRoutes.post('/addrecipe',verifyAuth,upload.single('image'), recipeController.addRecipe);
+UserRoutes.post('/addrecipe',verifyAuth,recipeController.addRecipe);
 UserRoutes.post('/addfollow/:id',verifyAuth,userController.followUser);
 UserRoutes.post('/addunfollow/:id',verifyAuth,userController.unFollowUser);
 UserRoutes.post("/addcomment",verifyAuth,recipeController.addNewComment)

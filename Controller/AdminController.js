@@ -1,6 +1,7 @@
 const UBD = require("../Model/UserModel");
 const CATE_DB = require("../Model/CategoryModel");
-//------------------------------------------------
+const cloudinary = require("../utils/cloudinary");
+//--------------------------------------------------
 
 // admin login
 const dologin = async (req, res) => {
@@ -118,9 +119,12 @@ const doBlockUser = async (req, res) => {
 // add new Category
 const addNewCatogory = async (req, res) => {
   try {
-    const { title, bio } = req.body;
-    const imageUrl = req.file.filename;
+    const { title, bio, image } = req.body;
     const response = {};
+
+    const imageUrl = await cloudinary.uploader.upload(image, {
+      folder: "category_images",
+    });
 
     if (!title) {
       response.status = false;
@@ -140,7 +144,7 @@ const addNewCatogory = async (req, res) => {
         const Catogory = new CATE_DB({
           title,
           bio,
-          image: imageUrl,
+          image: imageUrl.secure_url,
         });
 
         const newCategory = await Catogory.save();

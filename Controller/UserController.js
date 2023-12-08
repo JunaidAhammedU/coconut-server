@@ -6,6 +6,7 @@ const otpRegister = require("../Helpers/otpGenafrate");
 const jwt = require("jsonwebtoken");
 const { response } = require("express");
 require("dotenv").config();
+const cloudinary = require("../utils/cloudinary");
 //------------------------------------------------------------
 
 // cheking autentication user logged in or Logged Out!
@@ -339,14 +340,17 @@ const getAllFollowers = async (req, res) => {
 // user profile edit
 const userProfileEdit = async (req, res) => {
   try {
-    const { UserName, email } = req.body;
+    const { UserName, email, profileImage } = req.body;
     const { userId } = req.query;
-    const profileUrl = req.file.filename;
     const response = {};
+
+    const profileUrl = await cloudinary.uploader.upload(profileImage, {
+      folder: "Profile_images",
+    });
 
     if (UserName && email && userId) {
       const updatedUserData = await UDB.findByIdAndUpdate(userId, {
-        $set: { UserName, email, profile_image: profileUrl },
+        $set: { UserName, email, profile_image: profileUrl.secure_url },
       });
       if (updatedUserData) {
         console.log(updatedUserData.profile_image);

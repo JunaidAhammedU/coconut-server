@@ -3,6 +3,7 @@ const RSDB = require("../Model/RecipeModel");
 const UDB = require("../Model/UserModel");
 const SavedRecipeDB = require("../Model/SavedRecipeModel");
 const CATE_DB = require("../Model/CategoryModel");
+const cloudinary = require("../utils/cloudinary");
 //-----------------------------------------------------------
 
 // adding a recipe data to DB
@@ -22,10 +23,16 @@ const addRecipe = async (req, res) => {
       calcium,
       userId,
       instruction,
+      image,
     } = req.body;
 
-    const imgUrl = req.file.filename;
     const response = {};
+
+    const imageUrl = await cloudinary.uploader.upload(image, {
+      folder: "Image",
+    });
+
+    console.log(imageUrl);
 
     const newRecipe = new RSDB({
       title: title,
@@ -33,7 +40,7 @@ const addRecipe = async (req, res) => {
       recipeType: veg === "veg" ? "veg" : "nonveg",
       cookingTime: parseInt(time),
       category: cuisine,
-      recipeImage: [imgUrl],
+      recipeImage: [imageUrl.secure_url],
       Ingredients: ingredient,
       Nutritions: {
         calories: calories,
