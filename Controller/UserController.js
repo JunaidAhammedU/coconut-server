@@ -77,6 +77,7 @@ const OtpRegister = async (req, res, next) => {
 // User Login.
 const doLogin = async (req, res) => {
   try {
+    console.log("check");
     const { email, password } = req.body;
     const response = {};
 

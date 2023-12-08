@@ -22,13 +22,7 @@ const server = app.listen(process.env.PORT, () =>
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: [process.env.origin],
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 //Socket io
 const io = new Server(server, {
