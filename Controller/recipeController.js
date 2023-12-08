@@ -32,8 +32,6 @@ const addRecipe = async (req, res) => {
       folder: "Image",
     });
 
-    console.log(imageUrl);
-
     const newRecipe = new RSDB({
       title: title,
       description: description,
