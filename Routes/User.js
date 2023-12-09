@@ -17,7 +17,7 @@ UserRoutes.get('/getAllCollections',verifyAuth,recipeController.getAllCollection
 UserRoutes.get('/getAllCategoryRecipe',verifyAuth,recipeController.getCategoryRecipe)
 UserRoutes.post('/editProfile', verifyAuth,userController.userProfileEdit);
 
-// all post and put methods
+// all post and patch methods
 UserRoutes.post('/',userController.authentication);
 UserRoutes.post('/register',userController.register);
 UserRoutes.post('/login',userController.doLogin);
@@ -27,6 +27,7 @@ UserRoutes.post('/addfollow/:id',verifyAuth,userController.followUser);
 UserRoutes.post('/addunfollow/:id',verifyAuth,userController.unFollowUser);
 UserRoutes.post("/addcomment",verifyAuth,recipeController.addNewComment)
 UserRoutes.post('/addSavedRecipe',verifyAuth,recipeController.addSavedRecipe)
+UserRoutes.patch('/removeRecipeCollection',verifyAuth,recipeController.doRecipeRemove)
 
 //---
 UserRoutes.post("/createChat",verifyAuth,chatController.accessChat);

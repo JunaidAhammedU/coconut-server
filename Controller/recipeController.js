@@ -256,11 +256,7 @@ const addSavedRecipe = async (req, res) => {
       response.message = "Somthing went wrong, Try again later";
     }
 
-    if (response.status) {
-      return res.status(200).json(response);
-    } else {
-      return res.json({ message: response.message });
-    }
+    return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -292,11 +288,7 @@ const getAllCollections = async (req, res) => {
       response.message = "Something went wrong";
     }
 
-    if (response.status) {
-      return res.status(200).json(response);
-    } else {
-      return res.json(response.message);
-    }
+    return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -326,13 +318,34 @@ const getCategoryRecipe = async (req, res) => {
       response.message = "Somthing went wrong, Try again letter";
     }
 
-    if (response.status) {
-      return res.status(200).json(response);
-    } else {
-      return res.json(response.message);
-    }
+    return res.status(200).json(response);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.json(error);
+  }
+};
+
+// remove a recipe from the user collection
+const doRecipeRemove = async (req, res) => {
+  try {
+    const { userId, recipeId } = req.query;
+    const response = {};
+
+    if (userId && recipeId) {
+      await SavedRecipeDB.updateOne(
+        { userId: userId },
+        {
+          $pull: { recipe: recipeId },
+        }
+      );
+      response.status = true;
+      response.message = "Recipe removed from your collection";
+    } else {
+      response.status = false;
+      response.message = "Somting went wrong, Try again";
+    }
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.json({ error: "Internal server error" });
   }
 };
 
@@ -345,4 +358,5 @@ module.exports = {
   addSavedRecipe,
   getAllCollections,
   getCategoryRecipe,
+  doRecipeRemove,
 };
