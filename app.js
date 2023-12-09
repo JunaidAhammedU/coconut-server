@@ -31,7 +31,7 @@ const upload = multer({
 // Middleware
 app.use(
   cors({
-    origin: "https://coconut-client.vercel.app/",
+    origin: "https://coconut-client.vercel.app",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
