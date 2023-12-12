@@ -40,17 +40,41 @@ const authentication = (req, res, next) => {
 // User Registration
 const register = async (req, res) => {
   try {
+    const { UserName, email } = req.body;
     const userData = req.body;
-    const userMail = userData.email;
-    const result = await UDB.find({ email: userMail });
-    if (result.length) {
-      res.json({ exist: true, created: false });
+
+    const response = {};
+
+    // validation checking.
+    const name_reg = /^[A-Za-z_][a-zA-Z0-9_.]{3,15}$/gm;
+    const email_reg = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/gm;
+    const password_reg =
+      /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$%^&*().\\?]).{8,16}$/gm;
+
+    if (!name_reg.test(UserName)) {
+      response.status = false;
+      response.message = "Invalid Username";
+    } else if (!email_reg.test(email)) {
+      response.status = false;
+      response.message = "Invalid Email Address";
+    } else if (!password_reg.test(req.body.password)) {
+      response.status = false;
+      response.message = "Create Strong Password";
     } else {
-      userData.password = await bcrypt.hash(userData.password, 10);
-      await UDB.insertMany([userData]);
-      await otpRegister.registerOtp(userMail);
-      res.status(201).json({ exist: false, created: true });
+      const result = await UDB.find({ email: email });
+      if (result.length) {
+        response.status = false;
+        response.message = "user already exist!, Try to register another email";
+      } else {
+        req.body.password = await bcrypt.hash(req.body.password, 10);
+        await UDB.insertMany([userData]);
+        await otpRegister.registerOtp(email);
+        response.status = true;
+        response.message = "Account Created";
+      }
     }
+
+    return res.status(200).json(response);
   } catch (error) {
     console.log(error);
     res.json(error);
@@ -353,7 +377,6 @@ const userProfileEdit = async (req, res) => {
         $set: { UserName, email, profile_image: profileUrl.secure_url },
       });
       if (updatedUserData) {
-        console.log(updatedUserData.profile_image);
 
         response.status = true;
         response.message = "Profile updated";

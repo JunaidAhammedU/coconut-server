@@ -46,7 +46,7 @@ app.use(upload.any());
 const io = new Server(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "https://coconut-client.vercel.app/",
+    origin: "https://coconut-client.vercel.app",
     methods: ["GET", "POST"],
   },
 });
@@ -67,6 +67,7 @@ io.on("connection", (socket) => {
 
   // sending new messsage through socket io
   socket.on("new message", async (data) => {
+    console.log(data);
     const { chatId } = data;
     if (data && chatId) {
       console.log(data);
