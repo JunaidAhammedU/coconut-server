@@ -377,7 +377,6 @@ const userProfileEdit = async (req, res) => {
         $set: { UserName, email, profile_image: profileUrl.secure_url },
       });
       if (updatedUserData) {
-
         response.status = true;
         response.message = "Profile updated";
         response.data = updatedUserData;

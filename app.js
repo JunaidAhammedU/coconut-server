@@ -54,7 +54,6 @@ const io = new Server(server, {
 // socken connection logic
 io.on("connection", (socket) => {
   socket.on("setup", (userId) => {
-    console.log("connected");
     socket.join(userId);
     socket.emit("connected");
   });
@@ -62,15 +61,12 @@ io.on("connection", (socket) => {
   // creating a room of socket io
   socket.on("join_room", (room) => {
     socket.join(room);
-    console.log("Room joined:", room);
   });
 
   // sending new messsage through socket io
   socket.on("new message", async (data) => {
-    console.log(data);
     const { chatId } = data;
     if (data && chatId) {
-      console.log(data);
       socket.to(chatId).emit("message recieved", data);
     } else {
       console.log("Something went wrong!");
